@@ -2,7 +2,7 @@ import AppKit
 
 let appName = "Edit OSX"
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var controllers: [TerminalWindowController] = []
     private var launchedWithFiles = false
 
@@ -43,6 +43,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for url in panel.urls { openWindow(files: [url.path]) }
     }
 
+    @objc func chooseTheme(_ sender: NSMenuItem) {
+        guard let theme = Theme.all.first(where: { $0.name == sender.title }) else { return }
+        Theme.current = theme
+    }
+
     @objc func chooseEdit(_ sender: Any?) { _ = EditLocator.chooseExecutable() }
 
     @objc func showAbout(_ sender: Any?) {
@@ -50,6 +55,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .applicationName: appName,
             .credits: NSAttributedString(string: "A native wrapper around the `edit` terminal editor."),
         ])
+    }
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        for item in menu.items { item.state = item.title == Theme.current.name ? .on : .off }
     }
 
     private func buildMenu() -> NSMenu {
@@ -95,6 +104,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         add(view, "Increase Font Size", #selector(TerminalWindowController.biggerFont(_:)), "+")
         add(view, "Decrease Font Size", #selector(TerminalWindowController.smallerFont(_:)), "-")
         add(view, "Actual Size", #selector(TerminalWindowController.resetFont(_:)), "0")
+        view.addItem(.separator())
+        let schemeItem = view.addItem(withTitle: "Color Scheme (New Windows)", action: nil, keyEquivalent: "")
+        let schemeMenu = NSMenu(title: "Color Scheme")
+        schemeMenu.delegate = self
+        for theme in Theme.all {
+            let item = schemeMenu.addItem(withTitle: theme.name, action: #selector(chooseTheme(_:)), keyEquivalent: "")
+            item.target = self
+        }
+        schemeItem.submenu = schemeMenu
         view.addItem(.separator())
         add(view, "Enter Full Screen", #selector(NSWindow.toggleFullScreen(_:)), "f", [.command, .control])
 

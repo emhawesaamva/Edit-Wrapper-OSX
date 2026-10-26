@@ -21,6 +21,7 @@ final class TerminalWindowController: NSWindowController, NSWindowDelegate, Loca
         window.delegate = self
         terminal.processDelegate = self
         terminal.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+        applyTheme(Theme.current)
         startEdit(editPath: editPath, files: files)
         window.makeFirstResponder(terminal)
     }
@@ -38,6 +39,17 @@ final class TerminalWindowController: NSWindowController, NSWindowDelegate, Loca
             args: files,
             environment: envList,
             execName: nil)
+    }
+
+    // MARK: Theme
+
+    /// `edit` reads the palette once at startup, so the scheme is fixed per window.
+    private func applyTheme(_ theme: Theme) {
+        terminal.installColors(theme.termColors)
+        terminal.nativeBackgroundColor = theme.nsBackground
+        terminal.nativeForegroundColor = theme.nsForeground
+        terminal.caretColor = theme.nsCursor
+        terminal.selectedTextBackgroundColor = theme.nsSelection
     }
 
     // MARK: View menu
