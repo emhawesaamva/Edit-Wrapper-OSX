@@ -35,8 +35,6 @@ Requirements: a Mac with Apple silicon (arm64) running macOS 13 or later.
 
 You only need to do step 4 once.
 
-> This repository is private; you need access to it to see the Releases page.
-
 ## Using it
 
 - **Open a file:** double-click a text or source file in Finder, choose **Open With → Edit OSX**, or use **File → Open…** (⌘O) in the app.
